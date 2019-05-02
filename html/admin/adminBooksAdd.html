@@ -10,6 +10,61 @@
   <link rel="stylesheet" href="../../css/index.css">
   <link rel="stylesheet" href="../../css/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script>
+    var local = {
+      setData:function(key, obj){
+        var values=JSON.stringify(obj);
+        localStorage.setItem(key,values);
+      },
+      getData:function(key){
+        if(localStorage.getItem(key)!=null){
+          return JSON.parse(localStorage.getItem(key));
+        } else{
+          return false;
+        }
+      },
+      updateData:function(key,newData){
+        if(localStorage.getItem(key)!=null){
+          var oldData = JSON.parse(localStorage.getItem(key));
+          for(keyObj in newData){
+            oldData[keyObj] = newData[keyObj];
+          }
+          var values = JSON.stringify(oldData);
+          localStorage.setItem(key,values);
+        }else{
+          return false;
+        }
+      }
+    };
+    function validateAddBook(){
+      var title = document.forms["bookInfo"]["title"].value;
+      var author = document.forms["bookInfo"]["author"].value;
+      var publisher = document.forms["bookInfo"]["publisher"].value;
+      if(title==""){
+        alert("Please input the book's title!");
+        return false;
+      }else if(author==""){
+        alert("Please select an author!");
+        return false;
+      }else if(publisher==""){
+        alert("Please select a publisher!");
+        return false;
+      }else{
+        addBook(title, author, publisher);
+        return true;
+      }
+    }
+    function addBook(title, author, publisher){
+      var lms = local.getData("lms");
+      var newBook = '{"id":"'+(lms.books.length+1)+'",' +
+                    '"title":"'+title+'",'+
+                    '"author":"'+author+'",'+
+                    '"publisher":"'+publisher+'"}';
+      lms['books'].push(JSON.parse(newBook));
+      local.setData("lms", lms);
+    }
+  </script>
 </head>
 
 <body>
@@ -42,35 +97,54 @@
       <div class="adminTable">
         <h3>Add New Book</h3>
         <div class="adminAddSpace"></div>
-        <form>
+        <form name="bookInfo" onsubmit="return validateAddBook()">
           <div class="form-group row">
             <label for="title" class="col-sm-2 col-form-label">Title</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" placeholder="Title...">
+              <input name="title" type="text" class="form-control" placeholder="Title...">
             </div>
           </div>
           <div class="form-group row">
-            <label for="Author" class="col-sm-2 col-form-label">Author</label>
+            <label for="author" class="col-sm-2 col-form-label">Author</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" placeholder="Author...">
+              <select id="authors-dropdown" name="author">
+                <option value="">-- Select Author--</option>
+                <script>
+                  var authors = local.getData("lms").authors;
+                  var dropdown = document.getElementById('authors-dropdown');
+                  for(var i = 0; i < authors.length; i++){
+                    dropdown.innerHTML = dropdown.innerHTML + 
+                      '<option value="' + authors[i].name + '">' + authors[i].name + '</option>';
+                  }
+                </script>
+              </select>
             </div>
           </div>
           <div class="form-group row">
-            <label for="Author" class="col-sm-2 col-form-label">Publisher</label>
+            <label for="publisher" class="col-sm-2 col-form-label">Publisher</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" placeholder="Publisher...">
+              <select id="publishers-dropdown" name="publisher">
+                  <option value="">-- Select Publisher--</option>
+                  <script>
+                    var publishers = local.getData("lms").publishers;
+                    var dropdown = document.getElementById('publishers-dropdown');
+                    for(var i = 0; i < publishers.length; i++){
+                      dropdown.innerHTML = dropdown.innerHTML + 
+                        '<option value="' + publishers[i].name + '">' + publishers[i].name + '</option>';
+                    }
+                  </script>
+                </select>
             </div>
           </div>
         </form>
-       
         <div class="submit_bttns">
-          <a href="./adminBooks.html">
-            <button class="cancel">Cancel</button>
-          </a>
-          <a href="">
-            <button class="update">Add Book</button>
-          </a>
-        </div>
+            <a href="./adminBooks.html">
+              <button class="cancel">Cancel</button>
+            </a>
+            <a href="./adminBooks.html">
+              <button type="submit" class="update" onclick="return validateAddBook()">Add Book</button>
+            </a>
+          </div>
       </div>
     </div>
   </div>

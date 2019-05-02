@@ -10,6 +10,45 @@
   <link rel="stylesheet" href="../../css/index.css">
   <link rel="stylesheet" href="../../css/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <script>
+      var local = {
+        setData:function(key, obj){
+          var values=JSON.stringify(obj);
+          localStorage.setItem(key,values);
+        },
+        getData:function(key){
+          if(localStorage.getItem(key)!=null){
+            return JSON.parse(localStorage.getItem(key));
+          } else{
+            return false;
+          }
+        },
+        updateData:function(key,newData){
+          if(localStorage.getItem(key)!=null){
+            var oldData = JSON.parse(localStorage.getItem(key));
+            for(keyObj in newData){
+              oldData[keyObj] = newData[keyObj];
+            }
+            var values = JSON.stringify(oldData);
+            localStorage.setItem(key,values);
+          }else{
+            return false;
+          }
+        }
+      };
+      function updateBook(){
+        var title = document.forms["edit"]["title"].value;
+        var author = document.forms["edit"]["author"].value;
+        var publisher = document.forms["edit"]["publisher"].value;
+        var lms = local.getData("lms");
+        var index = local.getData("index");
+        if(title!="")
+          lms.books[index].title = title;
+        lms.books[index].author = author;
+        lms.books[index].publisher = publisher;
+        local.setData("lms", lms);
+      }
+    </script>
 </head>
 
 <body>
@@ -42,23 +81,22 @@
       <div class="adminTable">
         <h3>Edit Book</h3>
         <div class="adminAddSpace"></div>
-        <form>
+        <form name="edit">
           <div class="form-group row">
             <label for="title" class="col-sm-2 col-form-label">Title</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" value="Blue Storm" placeholder="Title...">
+            <div class="col-sm-10" id="title_field">
             </div>
           </div>
           <div class="form-group row">
             <label for="Author" class="col-sm-2 col-form-label">Author</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" value="Jessical Daniels" placeholder="Author...">
+              <select id="authors-dropdown" name="author"></select>
             </div>
           </div>
           <div class="form-group row">
-            <label for="Author" class="col-sm-2 col-form-label">Publisher</label>
+            <label for="Publisher" class="col-sm-2 col-form-label">Publisher</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" value="Bloomberg" placeholder="Publisher...">
+              <select id="publishers-dropdown" name="publisher"></select>
             </div>
           </div>
         </form>
@@ -67,14 +105,37 @@
           <a href="./adminBooks.html">
             <button class="cancel">Cancel</button>
           </a>
-          <a href="">
-            <button class="update">Update Book</button>
+          <a href="./adminBooks.html">
+            <button class="update" onclick="return updateBook()">Update Book</button>
           </a>
         </div>
       </div>
     </div>
   </div>
-  
+  <script>
+    var lms = local.getData("lms");
+    var index = local.getData("index");
+    var title = document.getElementById("title_field");
+    title.innerHTML = title.innerHTML + '<input type="text" name="title" class="form-control" value="' +lms.books[index].title+'" placeholder="Title...">';
+
+    var author = document.getElementById("authors-dropdown");
+    author.innerHTML = author.innerHTML + '<option name="author" value="' +lms.books[index].author+'">'+lms.books[index].author+'</option>';
+    for(var i = 0; i < lms.authors.length; i++){
+      if(lms.authors[i].name!=lms.books[index].author){
+        author.innerHTML = author.innerHTML + 
+        '<option value="' + lms.authors[i].name + '">' + lms.authors[i].name + '</option>'; 
+      }
+    }
+
+    var publisher = document.getElementById("publishers-dropdown");
+    publisher.innerHTML = publisher.innerHTML + '<option name="publisher" value="' +lms.books[index].publisher+'">'+lms.books[index].publisher+'</option>';
+    for(var i = 0; i < lms.publishers.length; i++){
+      if(lms.publishers[i].name!=lms.books[index].publisher){
+        publisher.innerHTML = publisher.innerHTML + 
+        '<option value="' + lms.publishers[i].name + '">' + lms.publishers[i].name + '</option>'; 
+      }
+    }
+  </script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
